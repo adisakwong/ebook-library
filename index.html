@@ -10,6 +10,27 @@
 </head>
 
 <body>
+    <!-- Floating Action Button (Doughnut Menu Toggle) -->
+    <div class="fab-container">
+        <button class="fab-btn" id="fabBtn" onclick="toggleMenu()" title="ค้นหาและกรอง">
+            <span class="fab-icon">🔍</span>
+        </button>
+        <div class="menu-overlay" id="menuOverlay">
+            <div class="menu-content">
+                <button class="menu-close" onclick="toggleMenu()">×</button>
+                <div class="search-section">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="ค้นหาหนังสือ ผู้แต่ง หรือหมวดหมู่...">
+                    </div>
+                    <div class="filter-buttons" id="filterButtons">
+                        <button class="filter-btn active" data-category="all">ทั้งหมด</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Header Section -->
     <header class="header">
         <div class="header-content">
@@ -23,15 +44,6 @@
                 </div>
                 <div class="book-count" id="bookCount">
                     📖 กำลังโหลด...
-                </div>
-            </div>
-            <div class="search-section">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchInput" placeholder="ค้นหาหนังสือ ผู้แต่ง หรือหมวดหมู่...">
-                </div>
-                <div class="filter-buttons" id="filterButtons">
-                    <button class="filter-btn active" data-category="all">ทั้งหมด</button>
                 </div>
             </div>
         </div>

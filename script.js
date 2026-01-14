@@ -286,5 +286,33 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ========== Doughnut Menu Logic ==========
+const menuOverlay = document.getElementById('menuOverlay');
+const fabBtn = document.getElementById('fabBtn');
+
+function toggleMenu() {
+    menuOverlay.classList.toggle('active');
+    if (menuOverlay.classList.contains('active')) {
+        searchInput.focus();
+        fabBtn.style.display = 'none';
+    } else {
+        fabBtn.style.display = 'flex';
+    }
+}
+
+// Close menu when clicking outside content
+menuOverlay.addEventListener('click', (e) => {
+    if (e.target === menuOverlay) {
+        toggleMenu();
+    }
+});
+
+// Close menu with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuOverlay.classList.contains('active')) {
+        toggleMenu();
+    }
+});
+
 // ========== Initialize App ==========
 fetchBooks();
