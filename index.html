@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ebook Library - ห้องสมุดอิเล็กทรอนิกส์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon">📚</div>
+                    <div class="logo-text">
+                        <h1>Ebook Library</h1>
+                        <p>ห้องสมุดอิเล็กทรอนิกส์</p>
+                    </div>
+                </div>
+                <div class="book-count" id="bookCount">
+                    📖 กำลังโหลด...
+                </div>
+            </div>
+            <div class="search-section">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="ค้นหาหนังสือ ผู้แต่ง หรือหมวดหมู่...">
+                </div>
+                <div class="filter-buttons" id="filterButtons">
+                    <button class="filter-btn active" data-category="all">ทั้งหมด</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Setup Instructions (shown when API not configured) -->
+        <div class="setup-banner" id="setupBanner" style="display: none;">
+            <h3>⚙️ วิธีการตั้งค่า Google Apps Script</h3>
+            <ol>
+                <li>เปิด Google Sheet ของคุณ</li>
+                <li>คลิก <strong>Extensions</strong> → <strong>Apps Script</strong></li>
+                <li>วางโค้ด Apps Script ที่ได้รับ</li>
+                <li>คลิก <strong>Deploy</strong> → <strong>New deployment</strong></li>
+                <li>เลือก type: <strong>Web app</strong></li>
+                <li>ตั้งค่า: Execute as = <code>Me</code>, Who has access = <code>Anyone</code></li>
+                <li>คัดลอก Web app URL แล้วใส่ใน <code>script.js</code></li>
+            </ol>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">กำลังโหลดหนังสือ...</div>
+        </div>
+
+        <!-- Books Grid -->
+        <div class="books-grid" id="booksGrid" style="display: none;"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <h3>ไม่พบหนังสือ</h3>
+            <p>ลองค้นหาด้วยคำอื่นหรือเปลี่ยนหมวดหมู่</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">
+                ← ก่อนหน้า
+            </button>
+            <div class="pagination-info" id="paginationInfo">
+                หน้า 1 / 1
+            </div>
+            <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">
+                ถัดไป →
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="bookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-cover" id="modalCover" src="" alt="">
+                <div class="modal-details">
+                    <h3>📝 รายละเอียด</h3>
+                    <p><strong>ผู้แต่ง:</strong> <span id="modalAuthor"></span></p>
+                    <p><strong>หมวดหมู่:</strong> <span id="modalCategory"></span></p>
+                    <p id="modalDescription"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary" id="modalDownloadBtn" href="#" target="_blank">
+                    📥 ดาวน์โหลด
+                </a>
+                <button class="btn btn-secondary" onclick="closeModal()">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">📚</div>
+            <h3 class="footer-title">Ebook Library</h3>
+            <p class="footer-description">ห้องสมุดอิเล็กทรอนิกส์ - แหล่งรวมหนังสืออิเล็กทรอนิกส์คุณภาพ</p>
+            <div class="footer-divider"></div>
+            <p class="footer-copyright">
+                © 2026 Ebook Library. All rights reserved. | Made with ❤️ by <a href="#">Tech for Ummah</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
