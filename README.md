@@ -254,7 +254,7 @@ https://drive.google.com/thumbnail?id=1hpuBEPwPsiL-70XIMH9U4FlfpSQ7e3br&sz=w500
 ใช้ /thumbnail?id= แทน /uc?id=
 เพิ่ม &sz=w500 เพื่อกำหนดขนาดภาพ (สามารถปรับเป็น w300, w800 ฯลฯ)
 
-## เพิ่มเติม การทำให้โหลดข้อมูลเร็วขึ้น
+## เพิ่มเติม : การทำให้โหลดข้อมูลเร็วขึ้น
 1.Backend (apps-script.js):
 - เปลี่ยนจาก SpreadsheetApp ธรรมดามาใช้ Advanced Google Services (Sheets API v4) 
 ผ่านคำสั่ง Sheets.Spreadsheets.Values.get ซึ่งอ่านข้อมูลได้เร็วกว่ามากโดยเฉพาะกับข้อมูลจำนวนเยอะ ๆ
