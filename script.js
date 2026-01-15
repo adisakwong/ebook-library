@@ -1,6 +1,12 @@
 // ========== Configuration ==========
 // 🔐 ใส่ Google Apps Script Web App URL ที่นี่
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywDP1Bam_v7r0yVwcyr49652Q7qxn4dGD_-unyhdfSxcyI6h-F_i_TS0pUmEMfQlug/exec'; // เช่น: https://script.google.com/macros/s/AKfycby.../exec
+//const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywDP1Bam_v7r0yVwcyr49652Q7qxn4dGD_-unyhdfSxcyI6h-F_i_TS0pUmEMfQlug/exec'; // เช่น: https://script.google.com/macros/s/AKfycby.../exec
+
+
+
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7BngFCyCXiK0OwDAZxGtSU3yTVx5ZIC4u9YBB4uEKTsrCKouW3c1yBaZ2j09xn49Y/exec';
+
 
 // ========== Pagination Settings ==========
 const ITEMS_PER_PAGE = 12; // จำนวนหนังสือต่อหน้า
@@ -27,6 +33,10 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 
 // ========== Fetch Books from Google Apps Script ==========
+const CACHE_KEY = 'ebook_library_data';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 นาที
+
+// ========== Fetch Books with Caching ==========
 async function fetchBooks() {
     // Check if Apps Script URL is configured
     if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
@@ -37,51 +47,120 @@ async function fetchBooks() {
     }
 
     try {
-        const response = await fetch(APPS_SCRIPT_URL);
+        // 1. Try to load from cache first
+        const cachedData = getCachedData();
+        if (cachedData) {
+            console.log('Using cached data');
+            handleDataSuccess(cachedData);
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch data from Google Apps Script');
-        }
-
-        const result = await response.json();
-
-        if (!result.success || !result.data || result.data.length === 0) {
-            showEmptyState();
+            // Background update (optional strategy: stale-while-revalidate)
+            // fetchFromApi(true); 
             return;
         }
 
-        // Data already comes as objects from Apps Script
-        allBooks = result.data;
-        filteredBooks = [...allBooks];
-
-        // Create category filters
-        createCategoryFilters();
-
-        // Reset to first page
-        currentPage = 1;
-
-        // Display books
-        displayBooks();
-
-        // Update book count
-        updateBookCount();
-
-        // Hide loading, show grid
-        loading.style.display = 'none';
-        booksGrid.style.display = 'grid';
-        pagination.style.display = 'flex';
+        // 2. Fetch from API if no cache
+        await fetchFromApi();
 
     } catch (error) {
         console.error('Error fetching books:', error);
-        loading.innerHTML = `
-            <div style="color: white; text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-                <h3>เกิดข้อผิดพลาด</h3>
-                <p>ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบ Apps Script URL</p>
-                <p style="font-size: 0.9rem; margin-top: 1rem; opacity: 0.8;">${error.message}</p>
-            </div>
-        `;
+        showErrorState(error);
     }
+}
+
+async function fetchFromApi(isBackgroundUpdate = false) {
+    if (!isBackgroundUpdate) {
+        loading.style.display = 'flex';
+        loading.innerHTML = '<div class="spinner"></div><div class="loading-text">กำลังดาวน์โหลดข้อมูลล่าสุด...</div>';
+    }
+
+    const response = await fetch(APPS_SCRIPT_URL);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch data from Google Apps Script');
+    }
+
+    const result = await response.json();
+
+    if (!result.success) {
+        throw new Error(result.error || result.message || 'Unknown error from server');
+    }
+
+    if (!result.data || result.data.length === 0) {
+        showEmptyState();
+        return;
+    }
+
+    // Save to cache
+    saveToCache(result.data);
+
+    // Update UI
+    handleDataSuccess(result.data);
+}
+
+function handleDataSuccess(data) {
+    // Data already comes as objects from Apps Script
+    allBooks = data;
+    filteredBooks = [...allBooks];
+
+    // Create category filters
+    createCategoryFilters();
+
+    // Reset to first page
+    currentPage = 1;
+
+    // Display books
+    displayBooks();
+
+    // Update book count
+    updateBookCount();
+
+    // Hide loading, show grid
+    loading.style.display = 'none';
+    booksGrid.style.display = 'grid';
+    pagination.style.display = 'flex';
+}
+
+// ========== Cache Helpers ==========
+function getCachedData() {
+    const json = localStorage.getItem(CACHE_KEY);
+    if (!json) return null;
+
+    try {
+        const { data, timestamp } = JSON.parse(json);
+        const now = new Date().getTime();
+
+        // Check if cache is expired
+        if (now - timestamp > CACHE_DURATION) {
+            console.log('Cache expired');
+            localStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+
+        return data;
+    } catch (e) {
+        console.error('Error parsing cache', e);
+        return null;
+    }
+}
+
+function saveToCache(data) {
+    const cacheObject = {
+        data: data,
+        timestamp: new Date().getTime()
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObject));
+}
+
+function showErrorState(error) {
+    loading.innerHTML = `
+        <div style="color: white; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+            <h3>เกิดข้อผิดพลาด</h3>
+            <p>ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบ Apps Script URL หรือ การเชื่อมต่ออินเทอร์เน็ต</p>
+            <p style="font-size: 0.9rem; margin-top: 1rem; opacity: 0.8;">${error.message}</p>
+            <button onclick="localStorage.removeItem(CACHE_KEY); location.reload();" class="btn btn-secondary" style="margin-top: 1rem;">ลองใหม่อีกครั้ง</button>
+        </div>
+    `;
 }
 
 // ========== Create Category Filter Buttons ==========
