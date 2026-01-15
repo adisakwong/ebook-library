@@ -258,12 +258,13 @@ https://drive.google.com/thumbnail?id=1hpuBEPwPsiL-70XIMH9U4FlfpSQ7e3br&sz=w500
 *เพิ่มเติม การทำให้โหลดข้อมูลเร็วขึ้น
 
 1.Backend (apps-script.js):
-เปลี่ยนจาก SpreadsheetApp ธรรมดามาใช้ Advanced Google Services (Sheets API v4) 
+- เปลี่ยนจาก SpreadsheetApp ธรรมดามาใช้ Advanced Google Services (Sheets API v4) 
 ผ่านคำสั่ง Sheets.Spreadsheets.Values.get ซึ่งอ่านข้อมูลได้เร็วกว่ามากโดยเฉพาะกับข้อมูลจำนวนเยอะ ๆ
-ปรับปรุง Logic การแปลงข้อมูลให้กระชับและตรวจสอบ Errorได้ดีขึ้น
-⚠️ สำคัญ: คุณต้องเปิดใช้งาน Google Sheets API ในหน้า Apps Script Editor ก่อนใช้งาน (ดูวิธีด้านล่าง)
+- ปรับปรุง Logic การแปลงข้อมูลให้กระชับและตรวจสอบ Errorได้ดีขึ้น
+- ⚠️ สำคัญ: คุณต้องเปิดใช้งาน Google Sheets API ในหน้า Apps Script Editor ก่อนใช้งาน (ดูวิธีด้านล่าง)
 
 2.Frontend (script.js):
+
 - เพิ่มระบบ Caching (localStorage): เก็บข้อมูลหนังสือไว้ในเครื่องผู้ใช้เป็นเวลา 30 นาที ช่วยให้การเปิดหน้าเว็บครั้งถัดไปโหลด "แทบจะทันที" โดยไม่ต้องดึงข้อมูลจาก Server ใหม่ทุกครั้ง
 - เพิ่มปุ่ม "ลองใหม่อีกครั้ง" ในกรณีที่โหลดข้อมูลไม่สำเร็จ
 - ปรับปรุง UX ขณะโหลดข้อมูลให้ดูลื่นไหลขึ้น
