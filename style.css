@@ -124,6 +124,39 @@ body {
     }
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.reload-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
+
+.reload-btn:hover {
+    background: white;
+    transform: rotate(180deg);
+    border-color: var(--primary-color);
+}
+
+.reload-btn:active {
+    transform: rotate(180deg) scale(0.95);
+}
+
 /* ========== Floating Action Menu (Doughnut Menu) ========== */
 .fab-container {
     position: fixed;

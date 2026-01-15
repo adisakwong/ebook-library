@@ -245,11 +245,10 @@ Google Drive ไม่อนุญาตให้ใช้ URL แบบ uc?id= 
 ใน Google Sheet คอลัมน์ D (coverUrl) ให้เปลี่ยนจาก:
 
 ❌ เดิม:
+https://drive.google.com/file/d/1T94puxpCamiq9hJW5cmFfWic2PR2qJZ4/view?usp=sharing
 
-https://drive.google.com/uc?id=1hpuBEPwPsiL-70XIMH9U4FlfpSQ7e3br
 ✅ เปลี่ยนเป็น:
-
-https://drive.google.com/thumbnail?id=1hpuBEPwPsiL-70XIMH9U4FlfpSQ7e3br&sz=w500
+https://drive.google.com/thumbnail?id=1T94puxpCamiq9hJW5cmFfWic2PR2qJZ4&sz=w300
 📝 อธิบาย:
 ใช้ /thumbnail?id= แทน /uc?id=
 เพิ่ม &sz=w500 เพื่อกำหนดขนาดภาพ (สามารถปรับเป็น w300, w800 ฯลฯ)
