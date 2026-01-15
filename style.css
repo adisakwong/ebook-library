@@ -917,6 +917,33 @@ body {
     .footer-content {
         padding: 0 1rem;
     }
+
+    /* Modal Mobile Adjustments */
+    .modal-body {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .modal-cover {
+        height: auto;
+        max-height: 350px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.4rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+    }
 }
 
 @media (max-width: 480px) {
@@ -924,7 +951,27 @@ body {
         grid-template-columns: 1fr;
     }
 
+    .book-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 0.6rem;
+        font-size: 0.95rem;
+    }
+
     .modal-content {
-        margin: 1rem;
+        margin: 0.5rem;
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .modal-details p {
+        font-size: 0.95rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        /* Ensure clear text wrapping */
     }
 }
