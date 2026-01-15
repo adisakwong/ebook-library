@@ -131,13 +131,13 @@ body {
 }
 
 .reload-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border: none;
     border-radius: 50%;
     background: var(--bg-primary);
     color: var(--primary-color);
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
     display: flex;
@@ -145,6 +145,8 @@ body {
     justify-content: center;
     transition: var(--transition);
     border: 1px solid var(--border-color);
+    /* Prevent tap-highlight color on mobile */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .reload-btn:hover {

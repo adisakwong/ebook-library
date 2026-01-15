@@ -163,6 +163,34 @@ function showErrorState(error) {
     `;
 }
 
+// ========== Check & Refresh Data ==========
+function refreshData() {
+    const reloadBtn = document.getElementById('reloadBtn');
+
+    // Animate button
+    reloadBtn.style.transform = 'rotate(360deg)';
+
+    // Clear cache
+    localStorage.removeItem(CACHE_KEY);
+
+    // Clear current data & show loading
+    allBooks = [];
+    filteredBooks = [];
+    booksGrid.innerHTML = '';
+    booksGrid.style.display = 'none';
+    loading.style.display = 'flex';
+    bookCount.textContent = '📖 กำลังโหลด...';
+
+    // Fetch new data
+    setTimeout(() => {
+        fetchBooks();
+        // Reset rotation after animation
+        setTimeout(() => {
+            reloadBtn.style.transform = '';
+        }, 500);
+    }, 300); // Small delay for visual effect
+}
+
 // ========== Create Category Filter Buttons ==========
 function createCategoryFilters() {
     const categories = ['all', ...new Set(allBooks.map(book => book.category))];
