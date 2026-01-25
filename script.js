@@ -5,7 +5,15 @@
 
 
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7BngFCyCXiK0OwDAZxGtSU3yTVx5ZIC4u9YBB4uEKTsrCKouW3c1yBaZ2j09xn49Y/exec';
+//const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7BngFCyCXiK0OwDAZxGtSU3yTVx5ZIC4u9YBB4uEKTsrCKouW3c1yBaZ2j09xn49Y/exec';
+//const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-ykj7z-gevZKLo25ccbHmHbpoMXijbgMrjRcDgoSBDLwri5jIy7mwaWQ3gUboq-ha/exec';
+//const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-ykj7z-gevZKLo25ccbHmHbpoMXijbgMrjRcDgoSBDLwri5jIy7mwaWQ3gUboq-ha/exec';
+//const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyl4CwLqgN8Z7E98REmlvvlxdCJiFbJK2PT9k21ZUoDxZTf2GzdN7YsAeA6jUpCVqjQ/exec';
+//const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbynC61e9YMKVL0uBob08luWCYiOe47M2j_I8jo6w2qgrVrBceb7JlWBuKMeMBxQtgY4/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbynC61e9YMKVL0uBob08luWCYiOe47M2j_I8jo6w2qgrVrBceb7JlWBuKMeMBxQtgY4/exec';
+
+
+
 
 
 // ========== Pagination Settings ==========
@@ -17,6 +25,20 @@ let filteredBooks = [];
 let currentCategory = 'all';
 let currentPage = 1;
 let totalPages = 1;
+let userIP = 'Unknown';
+
+// ========== User IP Fetching ==========
+async function fetchUserIP() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        userIP = data.ip;
+        console.log('User IP:', userIP);
+    } catch (e) {
+        console.warn('Failed to fetch IP:', e);
+    }
+}
+fetchUserIP();
 
 // ========== DOM Elements ==========
 const loading = document.getElementById('loading');
@@ -53,8 +75,8 @@ async function fetchBooks() {
             console.log('Using cached data');
             handleDataSuccess(cachedData);
 
-            // Background update (optional strategy: stale-while-revalidate)
-            // fetchFromApi(true); 
+            // แม้จะมี Cache ก็ยังคงต้องไปดึงจำนวนผู้เข้าชมล่าสุดมาแสดง (โดยไม่นับเพิ่ม)
+            fetchVisitorCountOnly();
             return;
         }
 
@@ -73,7 +95,14 @@ async function fetchFromApi(isBackgroundUpdate = false) {
         loading.innerHTML = '<div class="spinner"></div><div class="loading-text">กำลังดาวน์โหลดข้อมูลล่าสุด...</div>';
     }
 
-    const response = await fetch(APPS_SCRIPT_URL);
+    // ตรวจสอบว่าในเซสชันนี้เคยนับยอดผู้เข้าชมไปหรือยัง
+    const hasBeenCounted = sessionStorage.getItem('v_counted');
+    const shouldInc = !hasBeenCounted;
+
+    // ส่งพารามิเตอร์ inc=1 เพื่อสั่งให้ฝั่ง Server เพิ่มยอด (เฉพาะครั้งแรกของเซสชัน)
+    // เพิ่มการส่ง IP และ User Agent ไปบันทึก
+    const url = `${APPS_SCRIPT_URL}${APPS_SCRIPT_URL.includes('?') ? '&' : '?'}inc=${shouldInc ? '1' : '0'}&ip=${userIP}&ua=${encodeURIComponent(navigator.userAgent)}`;
+    const response = await fetch(url);
 
     if (!response.ok) {
         throw new Error('Failed to fetch data from Google Apps Script');
@@ -90,11 +119,42 @@ async function fetchFromApi(isBackgroundUpdate = false) {
         return;
     }
 
+    // Display visitor count
+    if (result.visitorCount !== undefined && result.visitorCount !== null) {
+        console.log('Visitor Count:', result.visitorCount);
+        document.getElementById('visitorCountVal').textContent = result.visitorCount.toLocaleString();
+        // บันทึกว่านับแล้วในเซสชันนี้
+        if (shouldInc) {
+            sessionStorage.setItem('v_counted', 'true');
+        }
+    } else {
+        console.warn('visitorCount is missing in API response');
+    }
+
     // Save to cache
     saveToCache(result.data);
 
     // Update UI
     handleDataSuccess(result.data);
+}
+
+/**
+ * ดึงเฉพาะจำนวนผู้เข้าชมมาแสดง (ใช้เมื่อโหลดหนังสือจาก Cache)
+ */
+async function fetchVisitorCountOnly() {
+    try {
+        // ส่ง inc=0 เพื่อไม่อัปเดตยอด (นับเฉพาะ Read)
+        const url = `${APPS_SCRIPT_URL}${APPS_SCRIPT_URL.includes('?') ? '&' : '?'}inc=0&ip=${userIP}`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && (result.visitorCount !== undefined && result.visitorCount !== null)) {
+                document.getElementById('visitorCountVal').textContent = result.visitorCount.toLocaleString();
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to fetch visitor count only', e);
+    }
 }
 
 function handleDataSuccess(data) {
@@ -237,7 +297,7 @@ function displayBooks() {
                 </div>
                 <p class="book-description">${book.description}</p>
                 <div class="book-actions">
-                    <button class="btn btn-primary" onclick="event.stopPropagation(); window.open('${book.linkdownload}', '_blank')">
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); handleDownload('${book.title}', '${book.linkdownload}')">
                         📥 ดาวน์โหลด
                     </button>
                     <button class="btn btn-secondary" onclick="event.stopPropagation(); openModal(${globalIndex})">
@@ -353,7 +413,14 @@ function openModal(index) {
     document.getElementById('modalAuthor').textContent = book.author;
     document.getElementById('modalCategory').textContent = book.category;
     document.getElementById('modalDescription').textContent = book.description;
-    document.getElementById('modalDownloadBtn').href = book.linkdownload;
+
+    // Update Modal Download Button
+    const dlBtn = document.getElementById('modalDownloadBtn');
+    dlBtn.href = book.linkdownload; // Fallback
+    dlBtn.onclick = (e) => {
+        e.preventDefault();
+        handleDownload(book.title, book.linkdownload);
+    };
 
     bookModal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -392,6 +459,16 @@ document.addEventListener('keydown', (e) => {
         changePage(1);
     }
 });
+
+// ========== Handle Download Logging ==========
+function handleDownload(title, link) {
+    // 1. Open link immediately to avoid popup blockers
+    window.open(link, '_blank');
+
+    // 2. Log download to backend in background
+    const url = `${APPS_SCRIPT_URL}${APPS_SCRIPT_URL.includes('?') ? '&' : '?'}action=download&title=${encodeURIComponent(title)}&ip=${userIP}&ua=${encodeURIComponent(navigator.userAgent)}`;
+    fetch(url).catch(e => console.error('Download logging failed:', e));
+}
 
 // ========== Doughnut Menu Logic ==========
 const menuOverlay = document.getElementById('menuOverlay');
